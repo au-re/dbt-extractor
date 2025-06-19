@@ -40,6 +40,23 @@ The parser is solely responsible for turning text into recognized values, while 
 
 The extractor uses the typed abstract syntax tree to easily identify all the refs, sources, and configs present and extract them.
 
+## Running in the Browser
+
+Build the WebAssembly package with `wasm-pack`:
+
+```bash
+wasm-pack build wasm --target web
+```
+
+This generates a `wasm/pkg/` directory containing the module ready for use from
+`wasm/worker.js`, which exposes `extract_from_source_js` to a web worker.
+
+When compiling with the `wasm` feature the default `threads` feature is
+disabled, so extraction runs single-threaded and parallel processing is not
+available.
+
+A minimal example using the worker can be found in [wasm/demo](wasm/demo).
+
 ## Join the dbt Community
 
 - Be part of the conversation in the [dbt Community Slack](http://community.getdbt.com/)
