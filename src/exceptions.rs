@@ -1,8 +1,11 @@
 use crate::extractor::ExprType;
 use std::str::Utf8Error;
 use thiserror::Error;
+#[cfg(feature = "wasm")]
+use serde::Serialize;
 
 // Top-level error type in the hierarchy
+#[cfg_attr(feature = "wasm", derive(Serialize))]
 #[derive(Error, Debug, Clone, Eq, PartialEq)]
 pub enum ParseError {
     #[error("Source Error: {0}")]
@@ -12,6 +15,7 @@ pub enum ParseError {
 }
 
 // Errors from tree-sitter -> ExprU
+#[cfg_attr(feature = "wasm", derive(Serialize))]
 #[derive(Error, Debug, Clone, Eq, PartialEq)]
 pub enum SourceError {
     #[error("Syntax error in source")]
@@ -29,6 +33,7 @@ pub enum SourceError {
 }
 
 // errors from ExprU -> ExprT
+#[cfg_attr(feature = "wasm", derive(Serialize))]
 #[derive(Error, Debug, Clone, Eq, PartialEq)]
 pub enum TypeError {
     #[error("{0} cannot be assigned a {1}")]
