@@ -1,6 +1,7 @@
 use crate::exceptions::{ParseError, SourceError, TypeError};
 #[cfg(test)]
 use quickcheck::{Arbitrary, Gen};
+#[cfg(feature = "threads")]
 use rayon::prelude::*;
 use std::collections::HashMap;
 use std::str::from_utf8;
@@ -443,7 +444,16 @@ fn type_check_configs(expr: ExprU) -> Result<ConfigVal, TypeError> {
 fn type_check(ast: ExprU) -> Result<ExprT, TypeError> {
     match ast {
         ExprU::RootU(exprs) => {
-            let x: Result<Vec<ExprT>, TypeError> = exprs.into_par_iter().map(type_check).collect();
+            let x: Result<Vec<ExprT>, TypeError> = {
+                #[cfg(feature = "threads")]
+                {
+                    exprs.into_par_iter().map(type_check).collect()
+                }
+                #[cfg(not(feature = "threads"))]
+                {
+                    exprs.into_iter().map(type_check).collect()
+                }
+            };
             x.map(ExprT::RootT)
         }
 
@@ -675,10 +685,20 @@ fn extract_from(ast: ExprT) -> Extraction {
         ExprT::RootT(exprs) =>
         // immutably rolls all the results up into one
         {
-            exprs
-                .into_par_iter()
-                .map(extract_from)
-                .reduce(Extraction::default, |b, a| b.mappend(&a))
+            #[cfg(feature = "threads")]
+            {
+                exprs
+                    .into_par_iter()
+                    .map(extract_from)
+                    .reduce(Extraction::default, |b, a| b.mappend(&a))
+            }
+            #[cfg(not(feature = "threads"))]
+            {
+                exprs
+                    .into_iter()
+                    .map(extract_from)
+                    .fold(Extraction::default(), |b, a| b.mappend(&a))
+            }
         }
         ExprT::RefT(x) => Extraction::populate(Some(vec![x]), None, None),
         ExprT::SourceT(x, y) => Extraction::populate(None, Some(vec![(x, y)]), None),

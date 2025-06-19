@@ -18,8 +18,8 @@ name = "dbt_extractor"
 crate-type = ["cdylib", "lib"]
 
 [dependencies]
-pyo3 = { version = "0.24.1", features = ["abi3-py39", "extension-module"] }
-rayon = "1.5.1"
+pyo3 = { version = "0.24.1", optional = true, features = ["abi3-py39", "extension-module"] }
+rayon = { version = "1.5.1", optional = true }
 tree-sitter = "0.20.8"
 tree-sitter-jinja2 = { git = "https://github.com/dbt-labs/tree-sitter-jinja2", tag = "v0.2.0" }
 thiserror = "2.0.12"
@@ -27,3 +27,8 @@ thiserror = "2.0.12"
 [dev-dependencies]
 quickcheck = "1"
 quickcheck_macros = "1"
+
+[features]
+default = ["python", "threads"]
+python = ["pyo3"]
+threads = ["rayon"]
