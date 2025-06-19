@@ -1,4 +1,6 @@
 use crate::exceptions::{ParseError, SourceError, TypeError};
+#[cfg(feature = "wasm")]
+use serde::Serialize;
 #[cfg(test)]
 use quickcheck::{Arbitrary, Gen};
 #[cfg(feature = "threads")]
@@ -11,6 +13,7 @@ use RefVersion::*;
 
 // final result
 // this is snug fit for the shape of the data
+#[cfg_attr(feature = "wasm", derive(Serialize))]
 #[derive(Clone, Debug, PartialEq)]
 pub struct Extraction {
     pub refs: Vec<DbtRef>,
@@ -111,6 +114,7 @@ enum ExprT {
 }
 
 // wrappers for config return types
+#[cfg_attr(feature = "wasm", derive(Serialize))]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum ConfigVal {
     StringC(String),
@@ -149,6 +153,7 @@ impl Arbitrary for ConfigVal {
     }
 }
 
+#[cfg_attr(feature = "wasm", derive(Serialize))]
 #[derive(Clone, Debug, PartialEq)]
 pub struct DbtRef {
     pub name: String,
@@ -156,6 +161,7 @@ pub struct DbtRef {
     pub version: Option<RefVersion>,
 }
 
+#[cfg_attr(feature = "wasm", derive(Serialize))]
 #[derive(Clone, Debug, PartialEq)]
 pub enum RefVersion {
     StringRV(String),
@@ -218,6 +224,7 @@ impl Arbitrary for DbtRef {
 
 // values that represent types
 // generally used to pass type information to exceptions
+#[cfg_attr(feature = "wasm", derive(Serialize))]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum ExprType {
     String,
